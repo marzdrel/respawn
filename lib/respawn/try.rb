@@ -53,7 +53,7 @@ module Respawn
       self.onfail = ONFAIL.zip(ONFAIL).to_h.fetch(onfail)
       self.wait = wait
       self.handler = handler_for(onfail)
-      self.env = env || default_environment
+      self.env = env || Environment.new(default_environment)
     end
 
     def call
