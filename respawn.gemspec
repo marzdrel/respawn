@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.homepage = "https://github.com/marzdrel/respawn"
   spec.files = Dir["lib/**/*"]
 
-  spec.add_development_dependency "rspec", ">= 3"
+  spec.add_development_dependency "rspec", "~> 3"
 
-  spec.add_dependency "zeitwerk", ">= 2.6"
+  spec.add_dependency "zeitwerk", "~> 2"
 end

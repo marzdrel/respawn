@@ -1,8 +1,8 @@
 PATH
   remote: .
   specs:
-    respawn (0.1.0)
-      zeitwerk (>= 2.6)
+    respawn (0.1.1)
+      zeitwerk (~> 2)
 
 GEM
   remote: https://rubygems.org/
@@ -51,7 +51,7 @@ DEPENDENCIES
   irb
   rake (~> 13.0)
   respawn!
-  rspec (~> 3.0, >= 3)
+  rspec (~> 3.0, ~> 3)
 
 BUNDLED WITH
    2.7.1
