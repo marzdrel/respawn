@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
-require_relative "respawn/version"
+require "zeitwerk"
 
 module Respawn
   class Error < StandardError; end
-  # Your code goes here...
 end
+
+loader = Zeitwerk::Loader.for_gem
+loader.setup
+loader.eager_load
