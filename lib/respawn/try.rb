@@ -29,20 +29,6 @@ module Respawn
       :handler,
     ].freeze
 
-    class Handler
-      attr_accessor :block
-
-      def define(&block)
-        self.block = block
-      end
-    end
-
-    class NullHandler
-      def define(&)
-        raise Error, "Cannot define a block unless onfail is :handler"
-      end
-    end
-
     def self.call(*, **, &)
       new(*, **).call(&)
     end
@@ -52,7 +38,7 @@ module Respawn
       self.tries = tries
       self.onfail = ONFAIL.zip(ONFAIL).to_h.fetch(onfail)
       self.wait = wait
-      self.handler = handler_for(onfail)
+      self.handler = Handler.new(onfail)
       self.env = env || Environment.new(default_environment)
     end
 
@@ -78,14 +64,6 @@ module Respawn
         ENV.fetch("RAILS_ENV") do
           "production"
         end
-      end
-    end
-
-    def handler_for(onfail)
-      if onfail == :handler
-        Handler.new
-      else
-        NullHandler.new
       end
     end
 
