@@ -19,11 +19,6 @@ module Respawn
   # available.
 
   def self.default_setup
-    @_default_setup ||=
-      Setup.new(
-        notifier: NotifierDetector.call,
-        cause: ExceptionDetector.call,
-        predicate: [],
-      )
+    @_default_setup ||= Setup.new
   end
 end
