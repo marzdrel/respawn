@@ -28,16 +28,8 @@ module Respawn
     end
 
     def call
-      yield(handler).tap do |result|
-        Array(predicate).each.with_index do |condition, index|
-          if condition.call(result)
-            raise(
-              PredicateError,
-              "Predicate ##{index} matched (#{condition.inspect})",
-            )
-          end
-        end
-      end
+      yield(handler)
+        .tap(&method(:check_predicates))
     rescue *exceptions => e
       self.tries = tries - 1
       handler.retry_number += 1
@@ -53,6 +45,17 @@ module Respawn
     private
 
     attr_accessor :exceptions, :tries, :onfail, :wait, :handler, :env, :predicate
+
+    def check_predicates(result)
+      Array(predicate).each.with_index do |condition, index|
+        if condition.call(result)
+          raise(
+            PredicateError,
+            "Predicate ##{index} matched (#{condition.inspect})",
+          )
+        end
+      end
+    end
 
     def default_environment
       ENV.fetch("RUBY_ENV") do
