@@ -37,6 +37,7 @@ module Respawn
       end
     rescue *exceptions => e
       self.tries = tries - 1
+      handler.retry_number += 1
 
       if tries.positive?
         Kernel.sleep(wait) unless env.test?

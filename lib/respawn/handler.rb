@@ -2,6 +2,7 @@ module Respawn
   class Handler
     def initialize(onfail)
       self.onfail = onfail
+      self.retry_number = 0
     end
 
     def define(&block)
@@ -11,6 +12,8 @@ module Respawn
         raise Try::Error, "Cannot define a block unless onfail is :handler"
       end
     end
+
+    attr_accessor :onfail, :retry_number
 
     attr_reader :block
 

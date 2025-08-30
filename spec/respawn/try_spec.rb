@@ -202,7 +202,7 @@ module Respawn
         )
     end
 
-    it "passses the output through predicate" do
+    it "passses the output through predicate and failes" do
       response = Data.define(:status, :body).new(500, "error")
 
       predicate =
@@ -227,6 +227,44 @@ module Respawn
         end
 
       expect(result).to eq "This failed due to Respawn::PredicateError"
+    end
+
+    it "passses the output through predicate and succeedes" do
+      http_response = Data.define(:status, :body)
+
+      responses = [
+        http_response.new(500, "error"),
+        http_response.new(200, "error"),
+        http_response.new(500, "error"),
+        http_response.new(201, "created"),
+      ]
+
+      predicates = [
+        proc { it.status >= 500 },
+        proc { it.body == "error" },
+      ]
+
+      service =
+        described_class.new(
+          ArgumentError,
+          onfail: :handler,
+          predicate: predicates,
+        )
+
+      result =
+        service.call do |handler|
+          # handler.predicate do
+          #   it.status >= 500
+          # end
+
+          handler.define do |exception|
+            "This failed due to #{exception.class}"
+          end
+
+          responses[handler.retry_number]
+        end
+
+      expect(result).to eq http_response.new(201, "created")
     end
   end
 end
