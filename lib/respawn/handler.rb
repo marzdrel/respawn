@@ -3,14 +3,12 @@ module Respawn
     def initialize(onfail)
       self.onfail = onfail
       self.retry_number = 0
-      self.predicates = []
+      # self.predicates = []
     end
 
-    def first_try? = retry_number.zero?
-
-    def predicate(&block)
-      self.predicates << block
-    end
+    # def predicate(&block)
+    #   self.predicates << block
+    # end
 
     def define(&block)
       return if self.block
