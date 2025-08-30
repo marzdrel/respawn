@@ -1,8 +1,4 @@
 module Respawn
-  Environment = Data.define(:env) do
-    def test? = env == "test"
-  end
-
   class Try
     class Error < StandardError; end
 

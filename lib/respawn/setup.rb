@@ -2,9 +2,12 @@
 
 module Respawn
   OPTIONS = {
-    notifier: proc { NotifierDetector.call },
-    cause: proc { ExceptionDetector.call },
+    notifier: NotifierDetector,
+    cause: ExceptionDetector,
     predicate: [],
+    tries: 3,
+    wait: 0.5,
+    env: -> { Environment.new(ENV.fetch("RACK_ENV", "development")) },
   }
 
   Setup =
@@ -15,7 +18,7 @@ module Respawn
             [
               key,
               options.fetch(key) do
-                if value.is_a?(Proc)
+                if value.respond_to?(:call)
                   value.call
                 else
                   value
