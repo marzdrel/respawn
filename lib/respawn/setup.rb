@@ -1,9 +1,17 @@
 # frozen_string_literal: true
 
 module Respawn
+  ONFAIL = [
+    :notify,
+    :nothing,
+    :raise,
+    :handler,
+  ].freeze
+
   OPTIONS = {
     notifier: NotifierDetector,
     cause: ExceptionDetector,
+    onfail: ONFAIL,
     predicate: [],
     tries: 3,
     wait: 0.5,

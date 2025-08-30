@@ -8,9 +8,10 @@ module Respawn
   ].freeze
 
   Environment = Data.define(:env) do
+    using ArrayTry
+
     def initialize(env:)
-      ENVIRONMENTS.include?(env) or
-        raise ArgumentError, "Invalid environment: #{env.inspect}"
+      ENVIRONMENTS.try!(env)
 
       super
     end
