@@ -16,6 +16,7 @@ module Respawn
     tries: 5,
     wait: 0.5,
     env: -> { Environment.default },
+    setup: nil,
   }.freeze
 
   Setup =

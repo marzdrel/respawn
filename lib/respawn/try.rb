@@ -7,7 +7,9 @@ module Respawn
     end
 
     def initialize(*exceptions, **options)
-      self.setup = Setup.new(**options)
+      options.keys.each { OPTIONS.keys.try!(it) }
+
+      self.setup = options.fetch(:setup, Setup.new(**options))
       self.predicate = options.fetch(:predicate, setup.predicate)
       self.exceptions = parse_exceptions(exceptions) + [PredicateError]
       self.tries = options.fetch(:tries, setup.tries)

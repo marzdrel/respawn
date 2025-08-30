@@ -274,5 +274,31 @@ module Respawn
 
       expect(result).to eq http_response.new(201, "created")
     end
+
+    it "accepts setup arg" do
+      custom_setup =
+        Setup.new(
+          notifier: proc {},
+          onfail: :nothing,
+          cause: [EOFError],
+          tries: 2,
+        )
+
+      service =
+        described_class.new(
+          EOFError,
+          setup: custom_setup,
+        )
+
+      result =
+        proc do
+          service.call do
+            raise EOFError, "test"
+          end
+        end
+
+      expect { result.call }
+        .not_to raise_error
+    end
   end
 end
