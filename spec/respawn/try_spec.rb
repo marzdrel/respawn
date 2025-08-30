@@ -253,10 +253,6 @@ module Respawn
 
       result =
         service.call do |handler|
-          # handler.predicate do
-          #   it.status >= 500
-          # end
-
           handler.define do |exception|
             "This failed due to #{exception.class}"
           end

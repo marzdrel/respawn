@@ -3,14 +3,23 @@ module Respawn
     def initialize(onfail)
       self.onfail = onfail
       self.retry_number = 0
+      self.predicates = []
+    end
+
+    def first_try? = retry_number.zero?
+
+    def predicate(&block)
+      self.predicates << block
     end
 
     def define(&block)
-      if onfail == :handler
-        self.block = block
-      else
+      return if self.block
+
+      if onfail != :handler
         raise Try::Error, "Cannot define a block unless onfail is :handler"
       end
+
+      self.block = block
     end
 
     attr_accessor :onfail, :retry_number
@@ -19,7 +28,7 @@ module Respawn
 
     private
 
-    attr_accessor :onfail
+    attr_accessor :onfail, :predicates
     attr_writer :block
   end
 end
