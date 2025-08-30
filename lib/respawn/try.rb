@@ -1,13 +1,8 @@
 module Respawn
   class Try
-    class Error < StandardError; end
+    using ArrayTry
 
-    ONFAIL = [
-      :notify,
-      :nothing,
-      :raise,
-      :handler,
-    ].freeze
+    class Error < StandardError; end
 
     def self.call(*, **, &)
       new(*, **).call(&)
@@ -17,7 +12,7 @@ module Respawn
       self.predicate = predicate
       self.exceptions = parse_exceptions(exceptions) + [PredicateError]
       self.tries = tries
-      self.onfail = ONFAIL.zip(ONFAIL).to_h.fetch(onfail)
+      self.onfail = ONFAIL.try!(onfail)
       self.wait = wait
       self.handler = Handler.new(onfail)
       self.env = env || Environment.new(default_environment)

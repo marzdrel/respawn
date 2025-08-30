@@ -102,7 +102,7 @@ module Respawn
         end
 
         expect { code.call }
-          .to raise_error KeyError
+          .to raise_error ArgumentError, /Element "other" not found in array/
       end
     end
 
