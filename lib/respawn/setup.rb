@@ -11,12 +11,12 @@ module Respawn
   OPTIONS = {
     notifier: NotifierDetector,
     cause: ExceptionDetector,
-    onfail: ONFAIL,
+    onfail: :raise,
     predicate: [],
-    tries: 3,
+    tries: 5,
     wait: 0.5,
-    env: -> { Environment.new(ENV.fetch("RACK_ENV", "development")) },
-  }
+    env: -> { Environment.default },
+  }.freeze
 
   Setup =
     Data.define(*OPTIONS.keys) do

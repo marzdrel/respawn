@@ -2,20 +2,19 @@ module Respawn
   class Try
     using ArrayTry
 
-    class Error < StandardError; end
-
     def self.call(*, **, &)
       new(*, **).call(&)
     end
 
-    def initialize(*exceptions, predicate: [], tries: 5, onfail: :notify, wait: 0.5, env: nil)
-      self.predicate = predicate
+    def initialize(*exceptions, **options)
+      self.setup = Setup.new(**options)
+      self.predicate = options.fetch(:predicate, setup.predicate)
       self.exceptions = parse_exceptions(exceptions) + [PredicateError]
-      self.tries = tries
-      self.onfail = ONFAIL.try!(onfail)
-      self.wait = wait
+      self.tries = options.fetch(:tries, setup.tries)
+      self.onfail = ONFAIL.try! options.fetch(:onfail, setup.onfail)
+      self.wait = options.fetch(:wait, setup.wait)
       self.handler = Handler.new(onfail)
-      self.env = env || Environment.new(default_environment)
+      self.env = options.fetch(:env, Environment.default)
     end
 
     def call
@@ -35,7 +34,16 @@ module Respawn
 
     private
 
-    attr_accessor :exceptions, :tries, :onfail, :wait, :handler, :env, :predicate
+    attr_accessor(
+      :exceptions,
+      :tries,
+      :onfail,
+      :wait,
+      :handler,
+      :env,
+      :predicate,
+      :setup,
+    )
 
     def check_predicates(result)
       Array(predicate).each.with_index do |condition, index|
@@ -44,14 +52,6 @@ module Respawn
             PredicateError,
             "Predicate ##{index} matched (#{condition.inspect})",
           )
-        end
-      end
-    end
-
-    def default_environment
-      ENV.fetch("RUBY_ENV") do
-        ENV.fetch("RAILS_ENV") do
-          "production"
         end
       end
     end
@@ -71,7 +71,7 @@ module Respawn
 
     def parse_exceptions(list)
       list.flat_map do |exception|
-        if exception == :network_errors
+        if exception == :net
           Respawn.default_setup.cause
 
         # This comparision will raise an error if the exception is not

@@ -137,12 +137,12 @@ module Respawn
       end
     end
 
-    context "with network_errors" do
+    context "with net" do
       it "retries and raises error" do
         allow(Kernel).to receive_messages(sleep: true)
 
         code = proc do
-          described_class.call(:network_errors, tries: 2, onfail: :raise) do
+          described_class.call(:net, tries: 2, onfail: :raise) do
             raise EOFError
           end
         end
