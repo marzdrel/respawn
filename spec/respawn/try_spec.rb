@@ -229,6 +229,18 @@ module Respawn
       expect(result).to eq "This failed due to Respawn::PredicateError"
     end
 
+    it "raises default predicate error" do
+      service =
+        described_class.new(
+          ArgumentError,
+          onfail: :raise,
+          predicate: proc { true },
+        )
+
+      expect { service.call { 1 + 1 } }
+        .to raise_error(Respawn::PredicateError, /Predicate #0 matched/)
+    end
+
     it "passses the output through predicate and succeedes" do
       http_response = Data.define(:status, :body)
 

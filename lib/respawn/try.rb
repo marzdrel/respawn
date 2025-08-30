@@ -31,7 +31,10 @@ module Respawn
       yield(handler).tap do |result|
         Array(predicate).each.with_index do |condition, index|
           if condition.call(result)
-            raise PredicateError, "Predicate #{condition.inspect} matched the result"
+            raise(
+              PredicateError,
+              "Predicate ##{index} matched (#{condition.inspect})",
+            )
           end
         end
       end
