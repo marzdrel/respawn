@@ -13,7 +13,9 @@ module Respawn
     private
 
     def detect_notifier
-      if defined?(::Sentry)
+      if defined?(TestNotifier)
+        TestNotifier.method(:call)
+      elsif defined?(::Sentry)
         Sentry.method(:capture_exception)
       elsif defined?(::Airbrake)
         :airbrake

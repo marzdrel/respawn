@@ -7,7 +7,6 @@ module Respawn
     context "with constant failure" do
       it "retries the call and raises error" do
         service = described_class.new(ArgumentError, EOFError, onfail: :raise)
-        # allow(Sentry).to receive(:capture_exception)
 
         expect_result = expect do
           service.call { raise ArgumentError, "test" }
@@ -20,8 +19,6 @@ module Respawn
     context "with single failure" do
       it "retries the call and succeeds" do
         service = described_class.new(ArgumentError, EOFError, onfail: :raise)
-        # allow(Sentry).to receive(:capture_exception)
-
         done = nil
         expect_result = expect do
           service.call do
@@ -46,7 +43,6 @@ module Respawn
             env: Environment.new("production"),
           )
 
-        # allow(Sentry).to receive(:capture_exception)
         allow(Kernel).to receive_messages(sleep: true)
 
         service.call { raise ArgumentError, "test" }
@@ -59,19 +55,23 @@ module Respawn
       end
 
       it "does not send notification" do
+        stub_const("TestNotifier", proc {})
+        allow(TestNotifier).to receive(:call)
+
         service = described_class.new(ArgumentError, EOFError, onfail: :nothing)
-        # allow(Sentry).to receive(:capture_exception)
 
-        service.call do
-          raise ArgumentError, "test"
-        end
+        service.call { raise ArgumentError, "test" }
 
-        # expect(Sentry).not_to have_received(:capture_exception)
+        expect(TestNotifier)
+          .not_to have_received(:call)
       end
     end
 
     context "with soft fail and non-test" do
-      it "waits between tries" do
+      it "waits between tries and sends notification" do
+        stub_const("TestNotifier", proc {})
+        allow(TestNotifier).to receive(:call)
+
         service =
           described_class.new(
             ArgumentError,
@@ -79,27 +79,19 @@ module Respawn
             env: Environment.new("production"),
           )
 
-        # allow(Sentry).to receive(:capture_exception)
         allow(Kernel).to receive_messages(sleep: true)
 
         service.call { raise ArgumentError, "test" }
+
+        expect(TestNotifier)
+          .to have_received(:call)
+          .with(instance_of(ArgumentError))
 
         expect(Kernel)
           .to have_received(:sleep)
           .with(0.5)
           .exactly(4)
           .times
-      end
-
-      xit "sends notification" do
-        service = described_class.new(ArgumentError, EOFError, onfail: :notify)
-        # allow(Sentry).to receive(:capture_exception)
-
-        service.call do
-          raise ArgumentError, "test"
-        end
-
-        # expect(Sentry).to have_received(:capture_exception)
       end
     end
 
@@ -125,7 +117,6 @@ module Respawn
           )
 
         allow(Kernel).to receive_messages(sleep: true)
-        # allow(Sentry).to receive(:capture_exception)
 
         service.call { nil }
 
@@ -133,19 +124,21 @@ module Respawn
       end
 
       it "does not capture_exception when no error occurs" do
-        service = described_class.new(ArgumentError, EOFError, onfail: :notify)
-        # allow(Sentry).to receive(:capture_exception)
+        stub_const("TestNotifier", proc {})
+        allow(TestNotifier).to receive(:call)
         allow(Kernel).to receive_messages(sleep: true)
+
+        service = described_class.new(ArgumentError, EOFError, onfail: :notify)
 
         service.call { nil }
 
-        # expect(Sentry).not_to have_received(:capture_exception)
+        expect(TestNotifier)
+          .not_to have_received(:call)
       end
     end
 
     context "with network_errors" do
       it "retries and raises error" do
-        # allow(Sentry).to receive(:capture_exception)
         allow(Kernel).to receive_messages(sleep: true)
 
         code = proc do
@@ -167,7 +160,6 @@ module Respawn
           onfail: :handler,
         )
 
-      # allow(Sentry).to receive(:capture_exception)
       allow(Kernel).to receive_messages(sleep: true)
 
       code = proc do
@@ -191,7 +183,6 @@ module Respawn
           onfail: :raise,
         )
 
-      # allow(Sentry).to receive(:capture_exception)
       allow(Kernel).to receive_messages(sleep: true)
 
       code = proc do

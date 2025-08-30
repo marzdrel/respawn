@@ -6,22 +6,6 @@ module Respawn
   class Try
     class Error < StandardError; end
 
-    COMMON_NETWORK_EXCEPTIONS = [
-      EOFError,
-      defined?(SocketError) && SocketError,
-      Errno::ECONNABORTED,
-      Errno::ECONNRESET,
-      Errno::EHOSTUNREACH,
-      # Faraday::ConnectionFailed,
-      # Faraday::TimeoutError,
-      # Faraday::ClientError,
-      # Faraday::ServerError,
-      # Net::OpenTimeout,
-      # Net::ReadTimeout,
-      # OpenSSL::SSL::SSLError,
-      # OpenURI::HTTPError,
-    ].compact.freeze
-
     ONFAIL = [
       :notify,
       :nothing,
@@ -70,7 +54,7 @@ module Respawn
     def perform_fail(exception)
       case onfail
       in :notify
-        # Sentry.capture_exception(exception)
+        Respawn.default_setup.notifier.call(exception)
       in :nothing
         nil
       in :raise
@@ -83,7 +67,7 @@ module Respawn
     def parse_exceptions(list)
       list.flat_map do |exception|
         if exception == :network_errors
-          COMMON_NETWORK_EXCEPTIONS
+          Respawn.default_setup.cause
 
         # This comparision will raise an error if the exception is not
         # a class, which is what we want.

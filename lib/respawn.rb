@@ -13,9 +13,15 @@ module Respawn
     Try.call(...)
   end
 
-  DefaultSetup =
-    Setup.new(
-      notifier: NotifierDetector.call,
-      cause: ExceptionDetector.call,
-    )
+  # Postpone the actuall setup until the first use of the method, to make
+  # sure that all the dependencies are loaded and all constants are already
+  # available.
+
+  def self.default_setup
+    @_default_setup ||=
+      Setup.new(
+        notifier: NotifierDetector.call,
+        cause: ExceptionDetector.call,
+      )
+  end
 end
