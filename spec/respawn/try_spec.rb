@@ -163,16 +163,16 @@ module Respawn
       allow(Kernel).to receive_messages(sleep: true)
 
       code = proc do
-        service.call do |on_error|
-          on_error.define do |exception|
-            "This is failed due to #{exception.class}"
+        service.call do |handler|
+          handler.define do |exception|
+            "This failed due to #{exception.class}"
           end
 
           raise ArgumentError, "test"
         end
       end
 
-      expect(code.call).to eq "This is failed due to ArgumentError"
+      expect(code.call).to eq "This failed due to ArgumentError"
     end
 
     it "allows handler only if onfail is a handler" do
@@ -186,9 +186,9 @@ module Respawn
       allow(Kernel).to receive_messages(sleep: true)
 
       code = proc do
-        service.call do |on_error|
-          on_error.define do |exception|
-            "This is failed due to #{exception.class}"
+        service.call do |handler|
+          handler.define do |exception|
+            "This failed due to #{exception.class}"
           end
 
           raise ArgumentError, "test"
@@ -200,6 +200,33 @@ module Respawn
           Respawn::Try::Error,
           "Cannot define a block unless onfail is :handler",
         )
+    end
+
+    it "passses the output through predicate" do
+      response = Data.define(:status, :body).new(500, "error")
+
+      predicate =
+        proc do |response|
+          response.status >= 500
+        end
+
+      service =
+        described_class.new(
+          ArgumentError,
+          onfail: :handler,
+          predicate: predicate,
+        )
+
+      result =
+        service.call do |handler|
+          handler.define do |exception|
+            "This failed due to #{exception.class}"
+          end
+
+          response
+        end
+
+      expect(result).to eq "This failed due to Respawn::PredicateError"
     end
   end
 end

@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 module Respawn
-  Setup = Data.define(
-    :notifier,
-    :cause,
-  )
+  Setup =
+    Data.define(
+      :notifier,
+      :cause,
+      :predicate,
+    )
 end

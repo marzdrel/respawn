@@ -17,8 +17,9 @@ module Respawn
       new(*, **).call(&)
     end
 
-    def initialize(*exceptions, tries: 5, onfail: :notify, wait: 0.5, env: nil)
-      self.exceptions = parse_exceptions(exceptions)
+    def initialize(*exceptions, predicate: [], tries: 5, onfail: :notify, wait: 0.5, env: nil)
+      self.predicate = predicate
+      self.exceptions = parse_exceptions(exceptions) + [PredicateError]
       self.tries = tries
       self.onfail = ONFAIL.zip(ONFAIL).to_h.fetch(onfail)
       self.wait = wait
@@ -27,7 +28,13 @@ module Respawn
     end
 
     def call
-      yield(handler)
+      yield(handler).tap do |result|
+        Array(predicate).each.with_index do |condition, index|
+          if condition.call(result)
+            raise PredicateError, "Predicate #{condition.inspect} matched the result"
+          end
+        end
+      end
     rescue *exceptions => e
       self.tries = tries - 1
 
@@ -41,7 +48,7 @@ module Respawn
 
     private
 
-    attr_accessor :exceptions, :tries, :onfail, :wait, :handler, :env
+    attr_accessor :exceptions, :tries, :onfail, :wait, :handler, :env, :predicate
 
     def default_environment
       ENV.fetch("RUBY_ENV") do

@@ -8,6 +8,7 @@ loader.eager_load
 
 module Respawn
   class Error < StandardError; end
+  class PredicateError < StandardError; end
 
   def self.try(...)
     Try.call(...)
@@ -22,6 +23,7 @@ module Respawn
       Setup.new(
         notifier: NotifierDetector.call,
         cause: ExceptionDetector.call,
+        predicate: [],
       )
   end
 end
