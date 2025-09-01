@@ -10,7 +10,7 @@ module Respawn
 
   OPTIONS = {
     notifier: NotifierDetector,
-    cause: ExceptionDetector,
+    exs: ExceptionDetector,
     onfail: :raise,
     predicate: [],
     tries: 5,

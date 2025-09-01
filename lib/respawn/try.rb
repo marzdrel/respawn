@@ -7,13 +7,15 @@ module Respawn
     end
 
     def initialize(*exceptions, **options)
-      exceptions = [:net] if exceptions.empty?
-
       options.keys.each { OPTIONS.keys.try!(it) }
 
       self.setup = options.fetch(:setup, Setup.new(**options))
+
       self.notifier = options.fetch(:notifier, setup.notifier)
       self.predicate = options.fetch(:predicate, setup.predicate)
+
+      exceptions = setup.exs if exceptions.empty?
+
       self.exceptions = parse_exceptions(exceptions) + [PredicateError]
       self.tries = options.fetch(:tries, setup.tries)
       self.onfail = ONFAIL.try! options.fetch(:onfail, setup.onfail)
@@ -78,15 +80,10 @@ module Respawn
 
     def parse_exceptions(list)
       list.flat_map do |exception|
-        if exception == :net
-          Respawn.default_setup.cause
-
         # This comparision will raise an error if the exception is not
         # a class, which is what we want.
 
-        elsif exception <= Exception
-          exception
-        end
+        exception if exception <= Exception
       end
     end
   end

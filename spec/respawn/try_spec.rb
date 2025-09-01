@@ -137,21 +137,6 @@ module Respawn
       end
     end
 
-    context "with net" do
-      it "retries and raises error" do
-        allow(Kernel).to receive_messages(sleep: true)
-
-        code = proc do
-          described_class.call(:net, tries: 2, onfail: :raise) do
-            raise EOFError
-          end
-        end
-
-        expect { code.call }
-          .to raise_error EOFError
-      end
-    end
-
     it "executes custom logic on failure" do
       service =
         described_class.new(
@@ -280,7 +265,7 @@ module Respawn
         Setup.new(
           notifier: proc {},
           onfail: :nothing,
-          cause: [EOFError],
+          exs: [EOFError],
           tries: 2,
         )
 
