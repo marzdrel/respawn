@@ -83,15 +83,15 @@ module Respawn
 
         service.call { raise ArgumentError, "test" }
 
-        expect(TestNotifier)
-          .to have_received(:call)
-          .with(instance_of(ArgumentError))
-
         expect(Kernel)
           .to have_received(:sleep)
           .with(0.5)
           .exactly(4)
           .times
+
+        expect(TestNotifier)
+          .to have_received(:call)
+          .with(instance_of(ArgumentError))
       end
     end
 
@@ -123,7 +123,7 @@ module Respawn
         expect(Kernel).not_to have_received(:sleep)
       end
 
-      it "does not capture_exception when no error occurs" do
+      it "does not capture_exception when no error occurs"  do
         stub_const("TestNotifier", proc {})
         allow(TestNotifier).to receive(:call)
         allow(Kernel).to receive_messages(sleep: true)
@@ -299,6 +299,36 @@ module Respawn
 
       expect { result.call }
         .not_to raise_error
+    end
+
+    it "raises error on invalid option" do
+      code = proc do
+        described_class.new(ArgumentError, unknown: :other)
+      end
+
+      expect { code.call }
+        .to raise_error ArgumentError, /Element "unknown" not found in array/
+    end
+
+    it "uses the net setup by default" do
+      service =
+        described_class.new
+
+      count = 0
+
+      result =
+        proc do
+          service.call do
+            count += 1
+            raise EOFError, "test"
+          end
+        end
+
+      expect { result.call }
+        .to raise_error EOFError
+
+      expect(count)
+        .to eq 5
     end
   end
 end

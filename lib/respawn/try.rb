@@ -7,16 +7,20 @@ module Respawn
     end
 
     def initialize(*exceptions, **options)
+      exceptions = [:net] if exceptions.empty?
+
       options.keys.each { OPTIONS.keys.try!(it) }
 
       self.setup = options.fetch(:setup, Setup.new(**options))
+      self.notifier = options.fetch(:notifier, setup.notifier)
       self.predicate = options.fetch(:predicate, setup.predicate)
       self.exceptions = parse_exceptions(exceptions) + [PredicateError]
       self.tries = options.fetch(:tries, setup.tries)
       self.onfail = ONFAIL.try! options.fetch(:onfail, setup.onfail)
       self.wait = options.fetch(:wait, setup.wait)
-      self.handler = Handler.new(onfail)
       self.env = options.fetch(:env, Environment.default)
+
+      self.handler = Handler.new(onfail)
     end
 
     def call
@@ -45,6 +49,7 @@ module Respawn
       :env,
       :predicate,
       :setup,
+      :notifier,
     )
 
     def check_predicates(result)
@@ -61,7 +66,7 @@ module Respawn
     def perform_fail(exception)
       case onfail
       in :notify
-        Respawn.default_setup.notifier.call(exception)
+        notifier.call(exception)
       in :nothing
         nil
       in :raise
