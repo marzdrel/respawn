@@ -58,7 +58,13 @@ module Respawn
         stub_const("TestNotifier", proc {})
         allow(TestNotifier).to receive(:call)
 
-        service = described_class.new(ArgumentError, EOFError, onfail: :nothing)
+        service =
+          described_class.new(
+            ArgumentError,
+            EOFError,
+            notifier: TestNotifier.method(:call),
+            onfail: :nothing,
+          )
 
         service.call { raise ArgumentError, "test" }
 
@@ -76,6 +82,7 @@ module Respawn
           described_class.new(
             ArgumentError,
             onfail: :notify,
+            notifier: TestNotifier.method(:call),
             env: Environment.new("production"),
           )
 

@@ -13,12 +13,4 @@ module Respawn
   def self.try(...)
     Try.call(...)
   end
-
-  # Postpone the actuall setup until the first use of the method, to make
-  # sure that all the dependencies are loaded and all constants are already
-  # available.
-
-  def self.default_setup
-    @_default_setup ||= Setup.new
-  end
 end
