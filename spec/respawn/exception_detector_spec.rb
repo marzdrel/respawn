@@ -16,6 +16,34 @@ module Respawn
         expect(described_class.call)
           .to eq ExceptionDetector::PREDEFINED_EXCEPTIONS
       end
+
+      it "does memoization in production only" do
+        stub_const("TestException", Class.new(StandardError))
+
+        env = Environment.new("production")
+
+        exceptions = described_class.call(env:)
+        expect(exceptions.size).to eq 5
+
+        hide_const("TestException")
+
+        exceptions = described_class.call(env:)
+        expect(exceptions.size).to eq 5
+      end
+
+      it "does no memoization in non-production" do
+        stub_const("TestException", Class.new(StandardError))
+
+        env = Environment.new("test")
+
+        exceptions = described_class.call(env:)
+        expect(exceptions.size).to eq 5
+
+        hide_const("TestException")
+
+        exceptions = described_class.call(env:)
+        expect(exceptions.size).to eq 4
+      end
     end
   end
 end

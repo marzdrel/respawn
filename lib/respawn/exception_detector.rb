@@ -19,10 +19,15 @@ module Respawn
       "Net::ReadTimeout",
       "OpenSSL::SSL::SSLError",
       "OpenURI::HTTPError",
+      "TestException",
     ].freeze
 
-    def self.call(...)
-      new(...).call
+    def self.call(env: Environment.default)
+      if env.test?
+        new.call
+      else
+        @_call ||= new.call
+      end
     end
 
     def call
