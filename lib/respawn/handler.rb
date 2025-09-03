@@ -14,7 +14,7 @@ module Respawn
       return if self.block
 
       if onfail != :handler
-        raise Try::Error, "Cannot define a block unless onfail is :handler"
+        raise Error, "Cannot define a block unless onfail is :handler"
       end
 
       self.block = block

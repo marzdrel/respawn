@@ -79,11 +79,11 @@ module Respawn
     end
 
     def parse_exceptions(list)
-      list.flat_map do |exception|
+      list.each do |exception|
         # This comparision will raise an error if the exception is not
         # a class, which is what we want.
 
-        exception if exception <= Exception
+        raise Error, "Invalid exception passsed" unless exception <= Exception
       end
     end
   end

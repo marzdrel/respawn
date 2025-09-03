@@ -189,7 +189,7 @@ module Respawn
 
       expect { code.call }
         .to raise_error(
-          Respawn::Try::Error,
+          Error,
           "Cannot define a block unless onfail is :handler",
         )
     end
@@ -321,6 +321,16 @@ module Respawn
 
       expect(count)
         .to eq 5
+    end
+
+    it "validates exception is a class" do
+      expect { described_class.new(:x) }
+        .to raise_error ArgumentError
+    end
+
+    it "validates exception is a class" do
+      expect { described_class.new(Respawn) }
+        .to raise_error Error
     end
   end
 end
