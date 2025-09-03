@@ -7,23 +7,16 @@ module Respawn
     # available. Memoize the result of first run, to avoid processing all the
     # logic in subsequent invocations.
 
-    def self.call(notifier: nil)
-      if notifier
-        new(notifier:).call
+    def self.call(env: Environment.default)
+      if env.test?
+        new.call
       else
-        @_call ||= new(notifier:).call
+        @_call ||= new.call
       end
     end
 
-    # Only reason for the inject here is for testing. Memoization will run the
-    # block once, preventing mocking in test.
-
-    def initialize(notifier:)
-      self.notifier = notifier
-    end
-
     def call
-      notifier || detect_notifier
+      detect_notifier
     end
 
     private
@@ -31,7 +24,9 @@ module Respawn
     attr_accessor :notifier
 
     def detect_notifier
-      if defined?(::Sentry)
+      if defined?(::TestNotifier)
+        TestNotifier.method(:call)
+      elsif defined?(::Sentry)
         Sentry.method(:capture_exception)
       elsif defined?(::Airbrake)
         :airbrake
@@ -40,7 +35,12 @@ module Respawn
       elsif defined?(::Rollbar)
         :rollbar
       else
-        proc {}
+        proc do
+          raise(
+            Error,
+            "Notifier called, but no notifier detected!",
+          )
+        end
       end
     end
   end
