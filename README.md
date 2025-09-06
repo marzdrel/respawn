@@ -20,6 +20,24 @@ in the application. This will only happen once, on the first usage of the
 retry logic. The exception class must be defined at this moment. See the
 `ExceptionDetector` class for full list of currently predefined exceptions.
 
+- `onfail: :raise` What should happen on the retry limit is reached and last
+retry resulted in exceptions. The default `:raise` means the final exception
+will be raised and it's up to the caller to either handle this case or simply
+let the default flow continue.
+
+
+### The `onfail` behavior
+
+The `onfail` parameter can be on of the predefined symbols:
+
+- `:raise` (default) Final exception will be raised. In usual context, the
+program (or request) will finish with error. If your application uses any kind
+of exception tracker, the error will get properly logged.
+
+- `:notify` The error will be sent to default exception tracker using native
+method call. Gem will try to detect which exception tracker API is available in
+the application.
+
 Basic usage based on specs:
 
 ### Exception based retry
