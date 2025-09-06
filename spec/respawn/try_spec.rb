@@ -272,7 +272,7 @@ module Respawn
         Setup.new(
           notifier: proc {},
           onfail: :nothing,
-          exs: [EOFError],
+          ex: [EOFError],
           tries: 2,
         )
 

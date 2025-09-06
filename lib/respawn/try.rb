@@ -14,7 +14,7 @@ module Respawn
       self.notifier = options.fetch(:notifier, setup.notifier)
       self.predicate = options.fetch(:predicate, setup.predicate)
 
-      exceptions = setup.exs if exceptions.empty?
+      exceptions = setup.ex if exceptions.empty?
 
       self.exceptions = parse_exceptions(exceptions) + [PredicateError]
       self.tries = options.fetch(:tries, setup.tries)

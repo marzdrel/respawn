@@ -6,7 +6,7 @@ module Respawn
       cfg =
         Setup.new(
           notifier: proc(&:message),
-          exs: [ArgumentError],
+          ex: [ArgumentError],
           predicate: [],
         )
 
