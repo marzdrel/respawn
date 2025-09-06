@@ -12,11 +12,6 @@ module Respawn
           .to include(SocketError)
       end
 
-      it "always doesn't include undefined constant" do
-        expect(described_class.call)
-          .to eq ExceptionDetector::PREDEFINED_EXCEPTIONS
-      end
-
       it "does memoization in production only" do
         stub_const("TestException", Class.new(StandardError))
 
@@ -31,7 +26,7 @@ module Respawn
         expect(exceptions.size).to eq 5
       end
 
-      it "does no memoization in non-production" do
+      it "doesn't do memoization in non-production envs" do
         stub_const("TestException", Class.new(StandardError))
 
         env = Environment.new("test")

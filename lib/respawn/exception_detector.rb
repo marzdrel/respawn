@@ -2,14 +2,11 @@
 
 module Respawn
   class ExceptionDetector
-    PREDEFINED_EXCEPTIONS = [
-      EOFError,
-      Errno::ECONNABORTED,
-      Errno::ECONNRESET,
-      Errno::EHOSTUNREACH,
-    ].freeze
-
-    DYNAMIC_EXCEPTIONS = [
+    EXCEPTIONS = [
+      "EOFError",
+      "Errno::ECONNABORTED",
+      "Errno::ECONNRESET",
+      "Errno::EHOSTUNREACH",
       "SocketError",
       "Faraday::ConnectionFailed",
       "Faraday::TimeoutError",
@@ -31,11 +28,7 @@ module Respawn
     end
 
     def call
-      PREDEFINED_EXCEPTIONS + dynamic_exceptions
-    end
-
-    def dynamic_exceptions
-      DYNAMIC_EXCEPTIONS.filter_map do
+      EXCEPTIONS.filter_map do
         Object.const_get(it) if Object.const_defined?(it)
       end
     end

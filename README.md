@@ -14,8 +14,11 @@ one. Setting this value to 1 will cause the logic to be executed only once.
 
 - `wait: 0.5` How much time (in seconds) to wait between retries.
 
-- `exs: [...]` List of exceptions which should be rescued for retry.
-By default ...
+- `ex: [...]` List of exceptions which should be rescued for retry. By
+default the gem will detect common network / io related exceptions defined
+in the application. This will only happen once, on the first usage of the
+retry logic. The exception class must be defined at this moment. See the
+`ExceptionDetector` class for full list of currently predefined exceptions.
 
 Basic usage based on specs:
 
