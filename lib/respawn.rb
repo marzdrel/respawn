@@ -2,10 +2,6 @@
 
 require "zeitwerk"
 
-loader = Zeitwerk::Loader.for_gem
-loader.setup
-loader.eager_load
-
 module Respawn
   class Error < StandardError; end
   class PredicateError < StandardError; end
@@ -14,3 +10,7 @@ module Respawn
     Try.call(...)
   end
 end
+
+loader = Zeitwerk::Loader.for_gem
+loader.setup
+loader.eager_load
