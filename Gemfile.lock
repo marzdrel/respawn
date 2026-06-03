@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    respawn (0.1.6)
+    respawn (0.2.0)
       zeitwerk (~> 2)
 
 GEM
