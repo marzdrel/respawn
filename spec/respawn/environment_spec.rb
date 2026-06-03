@@ -22,29 +22,32 @@ module Respawn
 
     describe ".default" do
       it "prefers RUBY_ENV over the others" do
-        stub_env(
-          "RUBY_ENV" => "test",
-          "RAILS_ENV" => "production",
-          "RACK_ENV" => "staging",
+        stub_const(
+          "ENV",
+          {
+            "RUBY_ENV" => "test",
+            "RAILS_ENV" => "production",
+            "RACK_ENV" => "staging",
+          },
         )
 
         expect(described_class.default.env).to eq("test")
       end
 
       it "falls back to RAILS_ENV when RUBY_ENV is missing" do
-        stub_env("RAILS_ENV" => "staging", "RACK_ENV" => "production")
+        stub_const("ENV", {"RAILS_ENV" => "staging", "RACK_ENV" => "production"})
 
         expect(described_class.default.env).to eq("staging")
       end
 
       it "falls back to RACK_ENV when only it is set" do
-        stub_env("RACK_ENV" => "staging")
+        stub_const("ENV", {"RACK_ENV" => "staging"})
 
         expect(described_class.default.env).to eq("staging")
       end
 
       it "defaults to production when nothing is set" do
-        stub_env({})
+        stub_const("ENV", {})
 
         expect(described_class.default.env).to eq("production")
       end

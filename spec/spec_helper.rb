@@ -4,23 +4,7 @@ require "respawn"
 
 ENV["RUBY_ENV"] ||= "test"
 
-module EnvHelper
-  # Stub ENV.fetch for the given keys, honouring both the block and the
-  # default-argument fallback forms. Keys not listed fall through to the
-  # caller's own default/block.
-
-  def stub_env(values)
-    allow(ENV).to receive(:fetch) do |key, default = nil, &block|
-      next values.fetch(key) if values.key?(key)
-
-      block ? block.call : default
-    end
-  end
-end
-
 RSpec.configure do |config|
-  config.include EnvHelper
-
   config.order = :random
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = ".rspec_status"
